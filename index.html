@@ -367,9 +367,9 @@
             const [suppliers, setSuppliers] = useSticky('supp', []);
             const [employees, setEmployees] = useSticky('employees', []);
             const [settings, setSettings] = useSticky('conf', { companyName: 'أرزاق للخردة', address: 'زليتن القاعة', phone: '0911234567' });
-            const [appUsers, setAppUsers] = useSticky('app_users', [
-                { id: 1, name: 'المسؤول', username: '605002026', password: '2026112233', role: 'admin', permissions: [] },
-                { id: 2, name: 'مستخدم عادي', username: '6002025', password: '1122331', role: 'user', permissions: ['weighbridge', 'financials', 'sales', 'purchases'] }
+            const [appUsers, setAppUsers] = useSticky('app_users_v2', [
+                { id: 1, name: 'المسؤول', username: 'محمد', password: '2026112233', role: 'admin', permissions: [] },
+                { id: 2, name: 'مستخدم عادي', username: '6002025', password: '1230', role: 'user', permissions: ['weighbridge', 'financials', 'sales', 'purchases'] }
             ]);
 
             const [weighData, setWeighData] = useState({ type: 'buy', client: '', driverName: '', vehicleNo: '', ironId: '1', gross: '', tare: '', deduction: 0, price: '', notes: '', date: new Date().toISOString().split('T')[0], id: Date.now().toString().slice(-6) });
@@ -389,7 +389,9 @@
 
             const calcNet = () => {
                 const g = Number(weighData.gross)||0; const t = Number(weighData.tare)||0; const d = Number(weighData.deduction)||0;
-                return Math.round((g - t) * (1 - d/100));
+                const netAfterTare = g - t;
+                const deductionAmount = netAfterTare * (d / 100);
+                return Math.round(netAfterTare - deductionAmount);
             };
 
             const handleLogin = (u, p) => {
@@ -483,7 +485,7 @@
                                     <div className="p-6 space-y-6">
                                         <div className="grid grid-cols-2 gap-4"><div><label className="block text-sm font-bold text-gray-600 mb-1">رقم الفاتورة</label><input type="number" className="w-full p-2 border rounded" value={weighData.id} onChange={e => setWeighData({...weighData, id: e.target.value})}/></div><div><label className="block text-sm font-bold text-gray-600 mb-1">التاريخ</label><input type="date" className="w-full p-2 border rounded" value={weighData.date} onChange={e => setWeighData({...weighData, date: e.target.value})}/></div></div>
                                         <div className="grid grid-cols-3 gap-4"><div className="col-span-1"><label className="block text-sm font-bold text-gray-600 mb-1">العميل</label><input type="text" list="cust-list" className="w-full p-2 border rounded" value={weighData.client} onChange={e => setWeighData({...weighData, client: e.target.value})}/><datalist id="cust-list">{customers.map(c => <option key={c.id} value={c.name}/>)}</datalist></div><div><label className="block text-sm font-bold text-gray-600 mb-1">السائق</label><input type="text" className="w-full p-2 border rounded" value={weighData.driverName} onChange={e => setWeighData({...weighData, driverName: e.target.value})}/></div><div><label className="block text-sm font-bold text-gray-600 mb-1">رقم السيارة</label><input type="text" className="w-full p-2 border rounded" value={weighData.vehicleNo} onChange={e => setWeighData({...weighData, vehicleNo: e.target.value})}/></div></div>
-                                        <div className="bg-blue-50 p-4 rounded border border-blue-100 grid grid-cols-4 gap-4 text-center"><div><label className="block text-xs font-bold text-gray-500">الصنف</label><select className="w-full p-1 border rounded" value={weighData.ironId} onChange={e=>setWeighData({...weighData, ironId: e.target.value})}>{inventory.map(i=><option key={i.id} value={i.id}>{i.name}</option>)}</select></div><div><label className="block text-xs font-bold text-gray-500">القائم</label><input type="number" className="w-full p-1 border rounded text-center" value={weighData.gross} onChange={e=>setWeighData({...weighData, gross: e.target.value})}/></div><div><label className="block text-xs font-bold text-gray-500">الفارغ</label><input type="number" className="w-full p-1 border rounded text-center" value={weighData.tare} onChange={e=>setWeighData({...weighData, tare: e.target.value})}/></div><div><label className="block text-xs font-bold text-red-500">خصم %</label><input type="number" className="w-full p-1 border rounded text-center border-red-200" value={weighData.deduction} onChange={e=>setWeighData({...weighData, deduction: e.target.value})}/></div></div>
+                                        <div className="bg-blue-50 p-4 rounded border border-blue-100 grid grid-cols-4 gap-4 text-center"><div><label className="block text-xs font-bold text-gray-500">الصنف</label><select className="w-full p-1 border rounded" value={weighData.ironId} onChange={e=>setWeighData({...weighData, ironId: e.target.value})}>{inventory.map(i=><option key={i.id} value={i.id}>{i.name}</option>)}</select></div><div><label className="block text-xs font-bold text-gray-500">القائم</label><input type="number" className="w-full p-1 border rounded text-center" value={weighData.gross} onChange={e=>setWeighData({...weighData, gross: e.target.value})}/></div><div><label className="block text-xs font-bold text-gray-500">الفارغ</label><input type="number" className="w-full p-1 border rounded text-center" value={weighData.tare} onChange={e=>setWeighData({...weighData, tare: e.target.value})}/></div><div><label className="block text-xs font-bold text-red-500">النسبة %</label><input type="number" className="w-full p-1 border rounded text-center border-red-200" value={weighData.deduction} onChange={e=>setWeighData({...weighData, deduction: e.target.value})}/></div></div>
                                         <div className="flex gap-4 items-end"><div className="w-1/3"><label className="block text-sm font-bold text-gray-600 mb-1">سعر الكيلو</label><input type="number" className="w-full p-2 border-2 border-yellow-400 rounded font-bold text-center" value={weighData.price} onChange={e=>setWeighData({...weighData, price: e.target.value})}/></div><button onClick={saveWeigh} className="flex-1 py-2 bg-gradient-to-r from-blue-700 to-blue-900 text-white font-bold rounded shadow hover:opacity-90">حفظ وطباعة</button></div>
                                     </div>
                                 </div>
