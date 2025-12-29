@@ -16,20 +16,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
-        body { font-family: 'Cairo', sans-serif; background-color: #ffff; } /* خلفية بيضاء دافئة */
+        body { font-family: 'Cairo', sans-serif; background-color: #ffff; }
         
-        /* تدرج البرتقالي الجديد (الهوية البصرية) */
-        .bg-theme-gradient {
-            background: linear-gradient(135deg, #e65100 0%, #fb8c00 50%, #ffa726 100%);
-        }
+        .bg-theme-gradient { background: linear-gradient(135deg, #e65100 0%, #fb8c00 50%, #ffa726 100%); }
         .text-theme-primary { color: #e65100; }
         .border-theme-primary { border-color: #e65100; }
         .bg-theme-primary { background-color: #e65100; }
-        .bg-theme-light { background-color: #fff3e0; } /* برتقالي فاتح جداً للخلفيات */
+        .bg-theme-light { background-color: #fff3e0; }
         
         .erp-table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .erp-table th { background-color: #fff7ed; color: #9a3412; font-weight: 700; text-align: right; padding: 16px; font-size: 0.85rem; border-bottom: 2px solid #fdba74; }
-        .erp-table td { padding: 16px; border-bottom: 1px solid #fed7aa; color: #431407; font-size: 0.95rem; }
+        .erp-table th { background-color: #fff7ed; color: #9a3412; font-weight: 700; text-align: right; padding: 12px 16px; font-size: 0.85rem; border-bottom: 2px solid #fdba74; }
+        .erp-table td { padding: 12px 16px; border-bottom: 1px solid #fed7aa; color: #431407; font-size: 0.95rem; }
         .erp-table tr:hover { background-color: #fff7ed; }
         
         .checkbox-wrapper { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; cursor: pointer; }
@@ -75,7 +72,7 @@
             return <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{icons[name]}</svg>;
         };
 
-        const WinchLogo = ({ className = "w-12 h-12", colorClass = "text-white" }) => (
+        const WinchLogo = ({ className = "w-12 h-12", colorClass = "text-blue-900" }) => (
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${className} ${colorClass}`}>
                 <path d="M19 11v-2a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v2" />
                 <path d="M12 9V2" />
@@ -174,7 +171,7 @@
             );
         };
 
-        // --- Screens & Components ---
+        // --- Screens ---
         const AccountingScreen = ({ transactions }) => {
             const calculateBalance = () => {
                 const financialTx = transactions.filter(t => t.category === 'financial');
@@ -228,8 +225,96 @@
             );
         };
 
-        const UsersManagementScreen = ({ users, onAddUser, onDeleteUser }) => {
+        // --- Screens ---
+        const LoginScreen = ({ onLogin }) => {
+            const [username, setUsername] = useState('');
+            const [password, setPassword] = useState('');
+            const [error, setError] = useState('');
+            const handleSubmit = (e) => { 
+                e.preventDefault(); 
+                const valid = onLogin(username, password);
+                if (!valid) setError('بيانات الدخول غير صحيحة'); 
+            };
+            return (
+                <div className="min-h-screen flex items-center justify-center bg-theme-gradient p-4"><div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden"><div className="bg-theme-primary p-8 text-center text-white bg-opacity-90"><div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm"><WinchLogo className="w-12 h-12" colorClass="text-white" /></div><h2 className="text-3xl font-black mb-1">أرزاق للخردة</h2><p className="text-white text-opacity-90 text-sm">نظام الإدارة المتكامل</p></div><div className="p-8"><form onSubmit={handleSubmit} className="space-y-6"><div><label className="block text-sm font-bold text-gray-700 mb-2">اسم المستخدم</label><input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-theme-primary focus:ring-4 focus:ring-orange-100 outline-none transition-all text-left" dir="ltr" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} /></div><div><label className="block text-sm font-bold text-gray-700 mb-2">كلمة المرور</label><input type="password" className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-theme-primary focus:ring-4 focus:ring-orange-100 outline-none transition-all text-left" dir="ltr" placeholder="•••••••" value={password} onChange={(e) => setPassword(e.target.value)} /></div>{error && <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm font-bold flex items-center gap-2"><Icon name="close" size={16} /> {error}</div>}<button type="submit" className="w-full py-3.5 bg-theme-primary text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-lg flex items-center justify-center gap-2"><Icon name="users" size={20} /> تسجيل الدخول</button></form></div><div className="bg-gray-50 p-4 text-center text-xs text-gray-400 border-t">&copy; {new Date().getFullYear()} Arzaq Scrap System</div></div></div>
+            );
+        };
+
+        const SettingsScreen = ({ settings, onSave }) => {
+            const [local, setLocal] = useState(settings);
+            return (
+                <div className="bg-white rounded-lg shadow p-6 animate-fadeInUp max-w-2xl mx-auto">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2"><Icon name="settings"/> إعدادات النظام</h2>
+                    <div className="space-y-4">
+                        <div><label className="block font-bold mb-1">اسم الشركة</label><input className="w-full p-2 border rounded" value={local.companyName} onChange={e=>setLocal({...local, companyName: e.target.value})}/></div>
+                        <div><label className="block font-bold mb-1">العنوان</label><input className="w-full p-2 border rounded" value={local.address} onChange={e=>setLocal({...local, address: e.target.value})}/></div>
+                        <div><label className="block font-bold mb-1">رقم الهاتف</label><input className="w-full p-2 border rounded" value={local.phone} onChange={e=>setLocal({...local, phone: e.target.value})}/></div>
+                        <button onClick={() => onSave(local)} className="w-full py-3 bg-theme-primary text-white font-bold rounded hover:opacity-90 mt-4">حفظ التغييرات</button>
+                    </div>
+                </div>
+            );
+        };
+
+        const EmployeeManager = ({ employees, onAdd, onUpdate, onDelete }) => {
+             const [formData, setFormData] = useState({ name: '', role: '', salary: '' });
+             const [editId, setEditId] = useState(null);
+
+             const handleSubmit = () => {
+                 if (!formData.name || !formData.salary) return alert('البيانات ناقصة');
+                 if (editId) {
+                     onUpdate({ ...formData, id: editId, advances: employees.find(e => e.id === editId).advances });
+                     setEditId(null);
+                 } else {
+                     onAdd({ ...formData, id: Date.now(), advances: 0 });
+                 }
+                 setFormData({ name: '', role: '', salary: '' });
+             };
+
+             const handleEdit = (emp) => {
+                 setFormData({ name: emp.name, role: emp.role, salary: emp.salary });
+                 setEditId(emp.id);
+             };
+
+             return (
+                <div className="bg-white rounded-lg shadow p-6 animate-fadeInUp">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2"><Icon name="users"/> إدارة الموظفين</h2>
+                    <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 mb-8">
+                        <div className="flex gap-4 items-end">
+                            <div className="flex-1"><label className="block text-xs font-bold mb-1">الاسم</label><input className="w-full p-2 border rounded" value={formData.name} onChange={e=>setFormData({...formData, name: e.target.value})}/></div>
+                            <div className="flex-1"><label className="block text-xs font-bold mb-1">الوظيفة</label><input className="w-full p-2 border rounded" value={formData.role} onChange={e=>setFormData({...formData, role: e.target.value})}/></div>
+                            <div className="w-32"><label className="block text-xs font-bold mb-1">الراتب</label><input type="number" className="w-full p-2 border rounded" value={formData.salary} onChange={e=>setFormData({...formData, salary: e.target.value})}/></div>
+                            <button onClick={handleSubmit} className="bg-theme-primary text-white px-6 py-2 rounded font-bold hover:opacity-90">{editId ? 'تحديث' : 'حفظ'}</button>
+                            {editId && <button onClick={() => { setEditId(null); setFormData({name:'', role:'', salary:''}); }} className="px-4 py-2 text-gray-500">إلغاء</button>}
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {employees.map(emp => (
+                            <div key={emp.id} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-2 h-full bg-theme-primary"></div>
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center font-bold text-xl text-gray-600">{emp.name.charAt(0)}</div>
+                                        <div><h3 className="font-bold text-lg text-gray-800">{emp.name}</h3><p className="text-xs text-gray-500 font-medium">{emp.role}</p></div>
+                                    </div>
+                                    <div className="flex gap-1">
+                                        <button onClick={() => handleEdit(emp)} className="text-blue-500 hover:bg-blue-50 p-1 rounded"><Icon name="edit" size={16}/></button>
+                                        <button onClick={() => onDelete(emp.id)} className="text-red-500 hover:bg-red-50 p-1 rounded"><Icon name="trash" size={16}/></button>
+                                    </div>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between text-sm p-2 bg-gray-50 rounded-lg"><span className="text-gray-500">الراتب</span><span className="font-bold">{Number(emp.salary).toLocaleString()} د.ل</span></div>
+                                    <div className="flex justify-between text-sm p-2 bg-red-50 text-red-700 rounded-lg"><span>السلف</span><span className="font-bold">{emp.advances ? emp.advances.toLocaleString() : 0} د.ل</span></div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+             );
+        };
+
+        const UsersManagementScreen = ({ users, onAddUser, onDeleteUser, onUpdateUser }) => {
             const [newUser, setNewUser] = useState({ name: '', username: '', password: '', role: 'user', permissions: [] });
+            const [editingId, setEditingId] = useState(null);
             
             const handlePermissionChange = (permId) => {
                 if (newUser.permissions.includes(permId)) {
@@ -241,8 +326,18 @@
 
             const saveUser = () => {
                 if(!newUser.name || !newUser.username || !newUser.password) return alert('البيانات ناقصة');
-                onAddUser({...newUser, id: Date.now()});
+                if (editingId) {
+                    onUpdateUser({...newUser, id: editingId});
+                    setEditingId(null);
+                } else {
+                    onAddUser({...newUser, id: Date.now()});
+                }
                 setNewUser({ name: '', username: '', password: '', role: 'user', permissions: [] });
+            };
+
+            const handleEdit = (u) => {
+                setNewUser(u);
+                setEditingId(u.id);
             };
 
             return (
@@ -250,7 +345,7 @@
                     <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2"><Icon name="users"/> إدارة المستخدمين والصلاحيات</h2>
                     
                     <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 mb-8">
-                        <h3 className="font-bold mb-4 text-theme-primary">إضافة مستخدم جديد</h3>
+                        <h3 className="font-bold mb-4 text-theme-primary">{editingId ? 'تعديل بيانات المستخدم' : 'إضافة مستخدم جديد'}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                             <div><label className="block text-xs font-bold mb-1">الاسم الكامل</label><input className="w-full p-2 border rounded" value={newUser.name} onChange={e=>setNewUser({...newUser, name: e.target.value})}/></div>
                             <div><label className="block text-xs font-bold mb-1">اسم المستخدم (للدخول)</label><input className="w-full p-2 border rounded" dir="ltr" value={newUser.username} onChange={e=>setNewUser({...newUser, username: e.target.value})}/></div>
@@ -277,11 +372,12 @@
                                 </div>
                             </div>
                         )}
-                        <button onClick={saveUser} className="bg-theme-primary text-white px-6 py-2 rounded font-bold hover:opacity-90">حفظ المستخدم</button>
+                        <button onClick={saveUser} className="bg-theme-primary text-white px-6 py-2 rounded font-bold hover:opacity-90">{editingId ? 'تحديث البيانات' : 'حفظ المستخدم'}</button>
+                        {editingId && <button onClick={() => {setEditingId(null); setNewUser({ name: '', username: '', password: '', role: 'user', permissions: [] });}} className="mr-2 text-gray-500">إلغاء</button>}
                     </div>
 
                     <table className="erp-table">
-                        <thead><tr><th>الاسم</th><th>اسم المستخدم</th><th>كلمة المرور</th><th>النوع</th><th>الصلاحيات</th><th>حذف</th></tr></thead>
+                        <thead><tr><th>الاسم</th><th>اسم المستخدم</th><th>كلمة المرور</th><th>النوع</th><th>الصلاحيات</th><th>إجراءات</th></tr></thead>
                         <tbody>
                             {users.map(u => (
                                 <tr key={u.id}>
@@ -290,7 +386,10 @@
                                     <td className="font-mono text-gray-400">******</td>
                                     <td><span className={`px-2 py-1 rounded text-xs font-bold ${u.role==='admin'?'bg-red-100 text-red-700':'bg-blue-100 text-blue-700'}`}>{u.role==='admin'?'مسؤول':'مستخدم'}</span></td>
                                     <td className="text-xs text-gray-500 max-w-xs truncate">{u.role === 'admin' ? 'الكل' : u.permissions.length + ' صلاحيات'}</td>
-                                    <td>{u.role !== 'admin' && <button onClick={() => onDeleteUser(u.id)} className="text-red-500 hover:bg-red-50 p-1 rounded"><Icon name="trash" size={16}/></button>}</td>
+                                    <td className="flex gap-2">
+                                        <button onClick={() => handleEdit(u)} className="text-blue-500 hover:bg-blue-50 p-1 rounded"><Icon name="edit" size={16}/></button>
+                                        {u.role !== 'admin' && <button onClick={() => onDeleteUser(u.id)} className="text-red-500 hover:bg-red-50 p-1 rounded"><Icon name="trash" size={16}/></button>}
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -325,40 +424,57 @@
             </div>
         );
 
-        const ContactList = ({ title, data, onAdd, onDelete }) => {
-            const [newName, setNewName] = useState(''); const [newPhone, setNewPhone] = useState('');
-            return (<div className="bg-white rounded-lg shadow p-6 animate-fadeInUp"><h2 className="text-2xl font-bold text-gray-800 mb-6">{title}</h2><div className="flex gap-4 mb-6 bg-gray-50 p-4 rounded-lg items-end"><div className="flex-1"><label className="block text-sm font-bold text-gray-600 mb-1">الاسم</label><input className="w-full p-2 border rounded" value={newName} onChange={e=>setNewName(e.target.value)} placeholder="اسم جديد..."/></div><div className="flex-1"><label className="block text-sm font-bold text-gray-600 mb-1">رقم الهاتف</label><input className="w-full p-2 border rounded" value={newPhone} onChange={e=>setNewPhone(e.target.value)} placeholder="09..."/></div><button onClick={() => { if(newName){ onAdd({id: Date.now(), name: newName, phone: newPhone, balance: 0}); setNewName(''); setNewPhone(''); }}} className="px-6 py-2 bg-theme-primary text-white font-bold rounded hover:opacity-90">إضافة</button></div><table className="erp-table"><thead><tr><th>الاسم</th><th>الهاتف</th><th>الرصيد</th><th>إجراءات</th></tr></thead><tbody>{data.map(c => (<tr key={c.id}><td className="font-bold">{c.name}</td><td>{c.phone}</td><td className={`font-mono font-bold ${c.balance < 0 ? 'text-red-600' : 'text-green-600'}`}>{c.balance.toLocaleString()}</td><td><button onClick={() => onDelete(c.id)} className="text-red-500 hover:bg-red-50 p-1 rounded"><Icon name="trash" size={16}/></button></td></tr>))}{data.length === 0 && <tr><td colSpan="4" className="text-center py-8 text-gray-400">لا توجد بيانات</td></tr>}</tbody></table></div>);
-        };
-        
-        const SettingsScreen = ({ settings, onSave }) => {
-            const [local, setLocal] = useState(settings);
+        const ContactList = ({ title, data, onAdd, onUpdate, onDelete, isAdmin }) => {
+            const [formData, setFormData] = useState({ name: '', phone: '' });
+            const [editId, setEditId] = useState(null);
+
+            const handleSubmit = () => {
+                if (!formData.name) return alert('الاسم مطلوب');
+                if (editId) {
+                    onUpdate({ ...formData, id: editId, balance: data.find(d => d.id === editId).balance });
+                    setEditId(null);
+                } else {
+                    onAdd({ ...formData, id: Date.now(), balance: 0 });
+                }
+                setFormData({ name: '', phone: '' });
+            };
+
+            const handleEdit = (item) => {
+                setFormData({ name: item.name, phone: item.phone });
+                setEditId(item.id);
+            };
+
             return (
-                <div className="bg-white rounded-lg shadow p-6 animate-fadeInUp max-w-2xl mx-auto">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2"><Icon name="settings"/> إعدادات النظام</h2>
-                    <div className="space-y-4">
-                        <div><label className="block font-bold mb-1">اسم الشركة</label><input className="w-full p-2 border rounded" value={local.companyName} onChange={e=>setLocal({...local, companyName: e.target.value})}/></div>
-                        <div><label className="block font-bold mb-1">العنوان</label><input className="w-full p-2 border rounded" value={local.address} onChange={e=>setLocal({...local, address: e.target.value})}/></div>
-                        <div><label className="block font-bold mb-1">رقم الهاتف</label><input className="w-full p-2 border rounded" value={local.phone} onChange={e=>setLocal({...local, phone: e.target.value})}/></div>
-                        <button onClick={() => onSave(local)} className="w-full py-3 bg-green-600 text-white font-bold rounded hover:bg-green-700 mt-4">حفظ التغييرات</button>
+                <div className="bg-white rounded-lg shadow p-6 animate-fadeInUp">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">{title}</h2>
+                    <div className="flex gap-4 mb-6 bg-gray-50 p-4 rounded-lg items-end">
+                        <div className="flex-1"><label className="block text-sm font-bold text-gray-600 mb-1">الاسم</label><input className="w-full p-2 border rounded" value={formData.name} onChange={e=>setFormData({...formData, name: e.target.value})} placeholder="اسم جديد..."/></div>
+                        <div className="flex-1"><label className="block text-sm font-bold text-gray-600 mb-1">رقم الهاتف</label><input className="w-full p-2 border rounded" value={formData.phone} onChange={e=>setFormData({...formData, phone: e.target.value})} placeholder="09..."/></div>
+                        <button onClick={handleSubmit} className="px-6 py-2 bg-theme-primary text-white font-bold rounded hover:opacity-90">{editId ? 'تحديث' : 'إضافة'}</button>
+                        {editId && <button onClick={() => { setEditId(null); setFormData({name:'', phone:''}); }} className="px-4 py-2 text-gray-500">إلغاء</button>}
                     </div>
+                    <table className="erp-table">
+                        <thead><tr><th>الاسم</th><th>الهاتف</th><th>الرصيد</th><th>إجراءات</th></tr></thead>
+                        <tbody>
+                            {data.map(c => (
+                                <tr key={c.id}>
+                                    <td className="font-bold">{c.name}</td>
+                                    <td>{c.phone}</td>
+                                    <td className={`font-mono font-bold ${c.balance < 0 ? 'text-red-600' : 'text-green-600'}`}>{c.balance.toLocaleString()}</td>
+                                    <td className="flex gap-2">
+                                        {isAdmin && <button onClick={() => handleEdit(c)} className="text-blue-500 hover:bg-blue-50 p-1 rounded"><Icon name="edit" size={16}/></button>}
+                                        {isAdmin && <button onClick={() => onDelete(c.id)} className="text-red-500 hover:bg-red-50 p-1 rounded"><Icon name="trash" size={16}/></button>}
+                                    </td>
+                                </tr>
+                            ))}
+                            {data.length === 0 && <tr><td colSpan="4" className="text-center py-8 text-gray-400">لا توجد بيانات</td></tr>}
+                        </tbody>
+                    </table>
                 </div>
             );
         };
-
-        const LoginScreen = ({ onLogin }) => {
-            const [username, setUsername] = useState('');
-            const [password, setPassword] = useState('');
-            const [error, setError] = useState('');
-            const handleSubmit = (e) => { 
-                e.preventDefault(); 
-                const valid = onLogin(username, password);
-                if (!valid) setError('بيانات الدخول غير صحيحة'); 
-            };
-            return (
-                <div className="min-h-screen flex items-center justify-center bg-theme-gradient p-4"><div className="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden"><div className="bg-theme-primary p-8 text-center text-white bg-opacity-90"><div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm"><WinchLogo className="w-12 h-12" colorClass="text-white" /></div><h2 className="text-3xl font-black mb-1">أرزاق للخردة</h2><p className="text-white text-opacity-90 text-sm">نظام الإدارة المتكامل</p></div><div className="p-8"><form onSubmit={handleSubmit} className="space-y-6"><div><label className="block text-sm font-bold text-gray-700 mb-2">اسم المستخدم</label><input type="text" className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-theme-primary focus:ring-4 focus:ring-orange-100 outline-none transition-all text-left" dir="ltr" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} /></div><div><label className="block text-sm font-bold text-gray-700 mb-2">كلمة المرور</label><input type="password" className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-theme-primary focus:ring-4 focus:ring-orange-100 outline-none transition-all text-left" dir="ltr" placeholder="•••••••" value={password} onChange={(e) => setPassword(e.target.value)} /></div>{error && <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm font-bold flex items-center gap-2"><Icon name="close" size={16} /> {error}</div>}<button type="submit" className="w-full py-3.5 bg-theme-primary text-white rounded-xl font-bold hover:opacity-90 transition-all shadow-lg flex items-center justify-center gap-2"><Icon name="users" size={20} /> تسجيل الدخول</button></form></div><div className="bg-gray-50 p-4 text-center text-xs text-gray-400 border-t">&copy; {new Date().getFullYear()} Arzaq Scrap System</div></div></div>
-            );
-        };
-
+        
+        // --- Main App Component ---
         const ArzaqApp = () => {
             const [user, setUser] = useState(null);
             const [activeTab, setActiveTab] = useState('weighbridge');
@@ -457,8 +573,16 @@
                 }
             };
 
-            const handleAddEmployee = (emp) => { setEmployees([...employees, emp]); alert("تم"); };
-            const handleDeleteEmployee = (id) => { setEmployees(employees.filter(e => e.id !== id)); };
+            const handleAddUser = (newUser) => setAppUsers([...appUsers, newUser]);
+            const handleUpdateUser = (updatedUser) => setAppUsers(appUsers.map(u => u.id === updatedUser.id ? updatedUser : u));
+            const handleDeleteUser = (id) => setAppUsers(appUsers.filter(u => u.id !== id));
+            
+            const handleUpdateCustomer = (updated) => setCustomers(customers.map(c => c.id === updated.id ? updated : c));
+            const handleUpdateSupplier = (updated) => setSuppliers(suppliers.map(s => s.id === updated.id ? updated : s));
+            
+            const handleAddEmployee = (emp) => setEmployees([...employees, emp]);
+            const handleUpdateEmployee = (updated) => setEmployees(employees.map(e => e.id === updated.id ? updated : e));
+            const handleDeleteEmployee = (id) => setEmployees(employees.filter(e => e.id !== id));
 
             if (!user) return <LoginScreen onLogin={handleLogin} />;
             const isAdmin = user.role === 'admin';
@@ -530,9 +654,9 @@
                                  </div>
                              </div>
                         )}
-                        {activeTab === 'users' && isAdmin && <UsersManagementScreen users={appUsers} onAddUser={u => setAppUsers([...appUsers, u])} onDeleteUser={id => setAppUsers(appUsers.filter(u => u.id !== id))} />}
-                        {activeTab === 'customers' && <ContactList title="العملاء (Customers)" data={customers} onAdd={c => setCustomers([...customers, c])} onDelete={id => isAdmin ? setCustomers(customers.filter(c => c.id !== id)) : alert('ليس لديك صلاحية')} />}
-                        {activeTab === 'suppliers' && <ContactList title="الموردين (Suppliers)" data={suppliers} onAdd={s => setSuppliers([...suppliers, s])} onDelete={id => isAdmin ? setSuppliers(suppliers.filter(s => s.id !== id)) : alert('ليس لديك صلاحية')} />}
+                        {activeTab === 'users' && isAdmin && <UsersManagementScreen users={appUsers} onAddUser={handleAddUser} onDeleteUser={handleDeleteUser} onUpdateUser={handleUpdateUser} />}
+                        {activeTab === 'customers' && <ContactList title="العملاء (Customers)" data={customers} onAdd={c => setCustomers([...customers, c])} onUpdate={handleUpdateCustomer} onDelete={id => isAdmin ? setCustomers(customers.filter(c => c.id !== id)) : alert('ليس لديك صلاحية')} isAdmin={isAdmin} />}
+                        {activeTab === 'suppliers' && <ContactList title="الموردين (Suppliers)" data={suppliers} onAdd={s => setSuppliers([...suppliers, s])} onUpdate={handleUpdateSupplier} onDelete={id => isAdmin ? setSuppliers(suppliers.filter(s => s.id !== id)) : alert('ليس لديك صلاحية')} isAdmin={isAdmin} />}
                         {activeTab === 'sales' && <TransactionList type="sales" data={transactions.filter(t => t.type === 'sell')} onView={setCurrentDocument} onDelete={deleteTx} canModify={hasPermission('delete_action')} />}
                         {activeTab === 'purchases' && <TransactionList type="purchases" data={transactions.filter(t => t.type === 'buy')} onView={setCurrentDocument} onDelete={deleteTx} canModify={hasPermission('delete_action')} />}
                         {activeTab === 'inventory' && (
@@ -546,6 +670,7 @@
                         )}
                         {activeTab === 'reports' && <TransactionList type="all" data={transactions} onView={setCurrentDocument} onDelete={deleteTx} canModify={hasPermission('delete_action')} />}
                         {activeTab === 'settings' && <SettingsScreen settings={settings} onSave={setSettings} />}
+                        {activeTab === 'employees' && <EmployeeManager employees={employees} onAdd={handleAddEmployee} onUpdate={handleUpdateEmployee} onDelete={handleDeleteEmployee} />}
                         {activeTab === 'deleted' && <DeletedTransactions transactions={transactions} />}
                     </main>
                 </div>
